@@ -1,0 +1,172 @@
+---
+title: "Mall Customers Capstone"
+author: "Samantha Jones"
+date: "2024-10-07"
+output: html_document
+---
+##
+Introduction: An owner of a supermarket mall with active customer memberships wants to analyze some basic customers information from their  memberships such as:Customer Id,Gender,Age,Annual Income,Spending Score. Spending Score is assigned to customers based on the owner perimeters of customer behavior and purchasing data.
+
+
+Problem: Owner wants to understand who their Target Audience is? For their marketing team to increase their promotional strategies.
+
+```{r}
+library(readr)
+Mall_Customers <- read_csv("Mall_Customers.csv")
+summary(Mall_Customers)
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(conflicted)
+library(dbplyr)
+```
+Check for missing values:
+```{r}
+sum(is.na(Mall_Customers))
+```
+Check for duplicates:
+```{r}
+duplicated_rows <- duplicated(Mall_Customers)
+sum(duplicated_rows)
+```
+Rename columns for clarity:
+```{r}
+names(Mall_Customers) <- c("CustomerID", "Gender", "Age", "Annual_Income", "Spending_Score")
+```
+Convert the annual income from double digits $15 and currency K$ into thousands as this will make for a more accurate annual income column in US dollars: 
+```{r}
+Mall_Customers$Annual_Income <- (Mall_Customers$Annual_Income * 1000)
+summary(Mall_Customers)
+```
+Data type conversion:
+```{r}
+Mall_Customers$Annual_Income <- as.numeric(Mall_Customers$Annual_Income)
+Mall_Customers$Spending_Score <- as.numeric(Mall_Customers$Spending_Score)
+```
+Segmentation by Gender:
+```{r}
+aggregate(cbind(Annual_Income, Spending_Score)~ Gender, data = Mall_Customers, FUN = mean)
+```
+As you can see even though Men make almost about 3000 dollars more than Women spend about 3% according to Spending Score.
+
+
+Customer Age Grouping: 
+Create age groups to study patterns across age brackets.
+```{r}
+Mall_Customers$Age_Group <- cut(Mall_Customers$Age, 
+                                breaks = c(0, 20, 40, 60, 80), labels = c("0-20", "21-40", "41-60", "61-80"))
+aggregate(Spending_Score ~ Age_Group, data = Mall_Customers, FUN = mean)
+```
+As you can see from the data table the age groups that spend the most range from ages 21-40. 
+
+
+Annual Income Analysis:
+Divide income into categories to study correlations with spending. 
+```{r}
+Mall_Customers$Income_Group <- cut(Mall_Customers$Annual_Income, breaks = 4, labels = c("Low", "Mid", "High", "Very High"))
+aggregate(Spending_Score ~ Income_Group, data = Mall_Customers, FUN = mean)
+```
+```
+SPECIFIC STEPS IN THE ANALYTICS PROCESS
+MARKET RESEARCH:
+
+1.Define objectives: understand the business needs to identify customers segments based on demographics and spending behavior.
+
+
+2.Data Exploration: Conducted exploratory analysis(EDA) to summarize main characteristics using statistical graphics and visulation(BELOW).
+
+
+3.Segmentation: Use clustering or catergorization techniques to identify different customer segments based on the factors such as income,age, and gender.
+
+
+4. Insights & Recommendations:Derive actionable insights for retail marketing strategies, such as targeted campaigns for specific age or income groups.
+
+GUIDE TO VISUALIZATION:
+OBJECTIVE:Present my findings visually to communicate key insights: 
+
+Age Distribution:
+```{r}
+library(ggplot2)
+```
+```{r}
+ggplot(Mall_Customers, aes(x = Age_Group)) + geom_bar(fill = "blue") + ggtitle("Distribution of Customers by Age")
+```
+
+
+Analysis: What age group spends the most?
+
+
+Age group that shops the most is ranging between 21-40
+
+
+Spending Score by Gender: 
+```{r}
+ggplot(Mall_Customers, aes(x = Gender, y = Spending_Score, fill = Gender)) + geom_boxplot() + ggtitle("Spending Score by Gender")
+```
+
+Analysis: Which gender has a higher Spending Score?
+
+
+Data shows that women have a higher Spending Score then men
+
+Annual Income vs. Spending Score:
+```{r}
+ggplot(Mall_Customers, aes(x = Annual_Income, y = Spending_Score, color = Gender)) + geom_point() + ggtitle("Annual Income vs. Spending Score by Gender")
+```
+
+Analyis: Is there a positive correlation between income and spending habits? Does Gender influence this?
+
+
+The bulk of both genders that make between 40000-70000 have just about the same spending habits. I don't believe gender is a major influnce on this because genders that make above 100k spend either less or more, those making below 50k have a low or high spending score as well.
+
+
+
+Income Group vs. Spending Score:
+```{r}
+ggplot(Mall_Customers, aes(x = Income_Group, y = Spending_Score, fill = Income_Group)) + geom_boxplot() + ggtitle("Spending Score by Income Group")
+```
+
+
+Analysis: Does a higher income group translate into higher spending?
+
+Low Range Income:15000-44000
+
+Mid Range Income:46000-76000
+
+High Range Income:77000-103000
+
+Very High Range Income: 113000-137000
+
+
+Mid range income spending score falls within the 50 range, shoppers either below or above the average range
+
+
+Low range income spending score is very consistent within the 25-75 range
+
+
+High range income spending score is within the 15-80 range but overall is consistent
+
+
+Very high range income spending score is within the 15-75 range is consistent as well
+
+
+
+CONCLUSION: 
+
+From this dataset I've concluded that age does factor into customers spending habits, moreso customers from ages 21-40. Income is generally not something that is keeping shoppers from spending, but 3 out of 4 income brackets(Low,High,VeryHigh) stay within reason. On the other hand mid income range does differ, meaning they spend to much, likely not at all or pretty adverage.
+
+
+Both male and female spending habits were just about the same, women just slight spend a little more than men.
+
+To further dive into this dataset maybe a catagory for items customers shop for i.e.(Electronic,Groceries,Clothing,Travel) would have helped to see where customers spend the most frequent.I believe if that data was present the marketing team could run sells/ads more geared towards those items.
+
+However since the target age audience is 21-40, advertisement on social media would be very benefical to the owner. 
+
+
+```
+
+```
+
+
